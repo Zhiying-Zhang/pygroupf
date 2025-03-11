@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pygroupf"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Zhiying Zhang", email = "zhiying_zhang@outlook.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/Zhiying Zhang/pygroupf#readme"
+Issues = "https://github.com/Zhiying Zhang/pygroupf/issues"
+Source = "https://github.com/Zhiying Zhang/pygroupf"
+
+[tool.hatch.version]
+path = "src/pygroupf/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/pygroupf tests}"
+
+[tool.coverage.run]
+source_pkgs = ["pygroupf", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/pygroupf/__about__.py",
+]
+
+[tool.coverage.paths]
+pygroupf = ["src/pygroupf", "*/pygroupf/src/pygroupf"]
+tests = ["tests", "*/pygroupf/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
