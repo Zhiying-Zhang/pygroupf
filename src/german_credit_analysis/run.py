@@ -1,6 +1,6 @@
 from german_credit_analysis.data_processing import DataProcessor
 from german_credit_analysis.analysis import DataAnalyzer
-# from german_credit_analysis.visualization import DataVisualizer
+from german_credit_analysis.visualization import DataVisualizer
 # from german_credit_analysis.modeling import RiskPredictor
 
 # Define column types
@@ -95,16 +95,13 @@ processed_data = processor.get_processed_data()
 
 # data analysis and save risk report
 analyzer = DataAnalyzer(processed_data, scoring_rules, risk_levels)
-risk_report = analyzer.save_risk_report("data/risk_report.csv")
+risk_report = analyzer.generate_risk_report() 
+analyzer.save_risk_report("data/risk_report.csv")
 
 
-
-
-
-# # visualization
-# visualizer = DataVisualizer(analyzed_data)
-# visualizer.plot_risk_distribution()
-# visualizer.plot_credit_vs_duration()
+# visualization
+visualizer = DataVisualizer(risk_report)
+visualizer.plot_all_visualizations()
 
 # # modeling
 # predictor = RiskPredictor(analyzed_data)
