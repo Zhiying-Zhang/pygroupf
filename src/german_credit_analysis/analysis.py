@@ -1,159 +1,138 @@
+import pandas as pd
 class DataAnalyzer:
     """
-    A class to analyze customer data and calculate risk scores based on various factors.
+    Analyzes credit data to calculate risk scores and levels using configurable rules.
+    
+    Attributes:
+        data (pd.DataFrame): Processed credit data with required fields.
+        scoring_rules (dict): Field-specific scoring rules configuration.
+        risk_levels (list): Thresholds for risk classification (threshold, level_name).
     """
-
-    def __init__(self, data):
+    
+    def __init__(self, data, scoring_rules, risk_levels):
         """
-        Initialize the DataAnalyzer with customer data.
+        Initialize analyzer with data and scoring configuration.
         
         Args:
-            data (pd.DataFrame): Input DataFrame containing customer data.
-                               Expected to have columns processed by DataProcessor.
-        
-        Raises:
-            ValueError: If input data is empty.
+            data: DataFrame containing processed credit data.
+            scoring_rules: Dictionary mapping fields to their scoring rules.
+            risk_levels: List of (threshold, level_name) tuples in descending order.
         """
-        assert not data.empty, "Input DataFrame cannot be empty"
+        assert isinstance(data, pd.DataFrame), "data must be a DataFrame"
+        assert isinstance(scoring_rules, dict), "scoring_rules must be a dict"
+        assert len(risk_levels) > 0, "risk_levels cannot be empty"
+        
         self.data = data
+        self.scoring_rules = scoring_rules
+        self.risk_levels = sorted(risk_levels, key=lambda x: x[0], reverse=True)
     
+    def calculate_field_score(self, field_name, value):
+        """
+        Calculate score for a single field based on configured rules.
+        
+        Args:
+            field_name: Field to score (must exist in scoring_rules).
+            value: Field value to evaluate.
+            
+        Returns:
+            int: Calculated score (0 if no rule matches).
+        """
+        rules = self.scoring_rules.get(field_name, {})
+        
+        # Handle numeric range rules (for continuous variables like age/amount)
+        if isinstance(rules, list):
+            for rule in rules:
+                if 'condition' in rule and rule['condition'](value):
+                    return rule['score']
+                elif 'threshold' in rule and value > rule['threshold']:
+                    return rule['score']
+            return 0
+        
+        # Handle categorical fields with default/specific scoring
+        elif isinstance(rules, dict) and 'default' in rules:
+            if value in rules.get('specific', {}):
+                return rules['specific'][value]
+            try:
+                return rules['default'](value)
+            except (TypeError, KeyError):
+                return rules.get('specific', {}).get(0, 0)
+        
+        # Handle simple value mappings (for discrete categories)
+        elif isinstance(rules, dict):
+            return rules.get(value, 0)
+        
+        return 0
     
     def calculate_risk_score(self, row):
         """
-        Calculate a risk score for a single customer based on multiple factors.
-        Higher scores indicate higher risk.
+        Calculate total risk score by summing all field scores.
         
         Args:
-            row (pd.Series): A row of customer data from the DataFrame
-        
+            row: DataFrame row containing customer data.
+            
         Returns:
-            int: Risk score for the customer between 0 and 100
-        
-        Note:
-            Scoring factors include:
-            - Age (young and old customers have higher risk)
-            - Sex (male slightly higher risk)
-            - Job type (unskilled and non-resident highest risk)
-            - Housing situation
-            - Savings/checking accounts
-            - Credit amount
-            - Loan duration
-            - Loan purpose
+            int: Total score clamped to 0-100 range.
         """
+        assert not row.empty, "Row data cannot be empty"
+        
         score = 0
+
+        # Sum scores for all configured fields
+        for field_name in self.scoring_rules:
+            normalized_name = field_name.lower().replace(" ", "_")
+            score += self.calculate_field_score(field_name, row[normalized_name])
         
-        # 1. Age (young and old customers have higher risk)
-        if row['age'] < 20 or row['age'] > 70:
-            score += 15
-        elif row['age'] < 25 or row['age'] > 60:
-            score += 10
-        elif row['age'] < 30 or row['age'] > 50:
-            score += 5
-            
-        # 2. Sex (male=1 has slightly higher risk)
-        if row['sex'] == 1:  # male
-            score += 2
-        elif row['sex'] == 0:  # femal
-            score += 0 
-            
-        # 3. Job (unskilled and non-resident have highest risk)
-        if row['job'] == 0:    # unskilled and non-resident
-            score += 15
-        elif row['job'] == 1:  # unskilled and resident
-            score += 10
-        elif row['job'] == 2:  # skilled
-            score += 5
-        elif row['job'] == 3:  # highly skilled
-            score += 1
-            
-        # 4. Housing situation (own have lowest risk, free medium and rent the highest)
-        if row['housing'] == 0:  # rent
-            score += 15
-        elif row['housing'] == 1:  # free
-            score += 10
-        elif row['housing'] == 2:  # own
-            score += 5  
-        
-        # 5. Savings accounts (more savings, lower risk)
-        if row['saving_accounts'] == 0:  
-            score += 10  
-        else:
-            score += (4 - row['saving_accounts']) * 3
-        
-        # 6. Checking accounts (more savings, lower risk)
-        if row['checking_account'] == 0:  
-            score += 10  
-        else:
-            score += (3 - row['checking_account']) * 4
-        
-        # 7. Credit amount (higher amount, higher risk)
-        if row['credit_amount'] > 8000:
-            score += 15
-        elif row['credit_amount'] > 5000:
-            score += 10
-        elif row['credit_amount'] > 2000:
-            score += 5
-            
-        # 8. Loan duration (longer duration, higher risk)
-        if row['duration'] > 36:
-            score += 15
-        elif row['duration'] > 24:
-            score += 10
-        elif row['duration'] > 12:
-            score += 5
-            
-        # 9. Loan purpose (business and education highest risk)
-        purpose = row['purpose']
-        if purpose in ['business', 'education']:
-            score += 10
-        elif purpose == 'unknown':
-            score += 8  
-        elif purpose in ['car', 'furniture/equipment']:
-            score += 5
-        elif purpose in ['radio/TV', 'domestic appliances', 'repairs', 'vacation/others']:
-            score += 3
-        
-        # Ensure score is within 0-100 range
-        score = min(max(score, 0), 100)
-        
-        assert 0 <= score <= 100, "Risk score must be between 0 and 100"
-        return score
+        # Ensure final score stays within bounds
+        return min(max(score, 0), 100)
     
     def determine_risk_level(self, score):
         """
-        Convert numerical risk score into categorical risk level.
+        Classify score into risk level based on thresholds.
         
         Args:
-            score (int): Risk score between 0-100
+            score: Calculated risk score (0-100).
+            
+        Returns:
+            str: Risk level name or 'Unknown' if no match.
+        """
+        assert 0 <= score <= 100, "Score must be between 0-100"
+        
+        # Check thresholds in descending order (highest risk first)
+        for threshold, level in self.risk_levels:
+            if score >= threshold:
+                return level
+        return "Unknown"
+    
+    def generate_risk_report(self):
+        """
+        Generate report with customer IDs, risk scores and levels.
         
         Returns:
-            str: Risk level category
+            pd.DataFrame: Report with original data plus risk analysis columns.
         """
-        if score >= 70:
-            return ("High risk")
-        elif score >= 50:
-            return ("Medium-high risk")
-        elif score >= 30:
-            return ("Medium-low risk")
-        else:
-            return ("Low risk")
-    
-    def add_risk_columns(self):
-        """
-        Add risk score and risk level columns to the DataFrame.
+        assert not self.data.empty, "Data cannot be empty"
         
-        Returns:
-            pd.DataFrame: DataFrame with added 'risk_score' and 'risk_level' columns
-        
-        Raises:
-            KeyError: If required columns are missing from the DataFrame
-        """
-        self.data['risk_score'] = self.data.apply(self.calculate_risk_score, axis=1)
-        self.data['risk_level'] = self.data['risk_score'].apply(self.determine_risk_level)
-        return self.data
-    
-    def save_to_csv(self, output_path):
-        """Save the DataFrame with risk analysis to a CSV file."""
-        self.data.to_csv(output_path, index=False)
-        return self.data
+        report_df = self.data
 
+        # Add sequential customer ID based on DataFrame index
+        report_df['customer_id'] = report_df.index + 1
+
+        # Calculate risk metrics
+        report_df['risk_score'] = report_df.apply(self.calculate_risk_score, axis=1)
+        report_df['risk_level'] = report_df['risk_score'].apply(self.determine_risk_level)
+        
+        cols = ['customer_id'] + [col for col in report_df.columns if col != 'customer_id']
+        return report_df[cols]
+    
+    def save_risk_report(self, output_path='risk_report.csv'):
+        """
+        Save risk report to CSV file.
+        
+        Args:
+            output_path: File path to save report (default: 'risk_report.csv').
+        """
+        assert output_path.endswith('.csv'), "Output path must be a CSV file"
+        
+        report_df = self.generate_risk_report()
+        report_df.to_csv(output_path, index=False)
+        print(f"Risk report saved to {output_path}")
