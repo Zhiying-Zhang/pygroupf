@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pygroupf"
 dynamic = ["version"]
-description = ''
+description = 'The project of The introduction of Python'
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
