@@ -59,7 +59,7 @@ class DataVisualizer:
         Plot the distribution of risk levels among customers.
     
         Returns:
-        matplotlib.figure.Figure: The distribution plot object.
+            matplotlib.figure.Figure: The distribution plot object.
         """
         plt.figure(figsize=(10, 6))
     
@@ -97,7 +97,3 @@ class DataVisualizer:
         self.plot_heatmap()
         self.plot_risk_distribution()
         print("All visualizations have been generated and saved to the 'image' folder.")
-
-# # Example usage
-# visualizer = DataVisualizer('data/risk_report.csv')
-# visualizer.visualize_all()
