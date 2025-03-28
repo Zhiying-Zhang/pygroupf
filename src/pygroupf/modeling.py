@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, fbeta_score
 
 # 读取数据
-data = pd.read_csv("data/rocessed_credit_data.csv")
+data = pd.read_csv("data/processed_credit_data.csv")
 
 # 打印列名，检查是否与预期的列名相符
 print(data.columns)

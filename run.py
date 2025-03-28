@@ -1,7 +1,6 @@
-from german_credit_analysis.data_processing import DataProcessor
-from german_credit_analysis.analysis import DataAnalyzer
-from german_credit_analysis.visualization import DataVisualizer
-# from german_credit_analysis.modeling import RiskPredictor
+from pygroupf.data_processing import DataProcessor
+from pygroupf.analysis import DataAnalyzer
+from pygroupf.visualization import DataVisualizer
 
 # Define column types
 categorical_cols = [
@@ -87,9 +86,9 @@ risk_levels = [
 
 # data processing
 processor = DataProcessor("data/german_credit_data.csv")
-raw_data = processor.load_data()
-clean_data = processor.clean_data(categorical_cols, numerical_cols)
-encode_data = processor.encode_categorical_values(mapping)
+processor.load_data()
+processor.clean_data(categorical_cols, numerical_cols)
+processor.encode_categorical_values(mapping)
 processed_data = processor.get_processed_data()
 
 
@@ -101,9 +100,5 @@ analyzer.save_risk_report("data/risk_report.csv")
 
 # visualization
 visualizer = DataVisualizer(risk_report)
-visualizer.plot_all_visualizations()
-
-# # modeling
-# predictor = RiskPredictor(analyzed_data)
-# predictor.train_model()
+visualizer.visualize_all()
 
