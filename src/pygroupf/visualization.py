@@ -57,38 +57,39 @@ class DataVisualizer:
     def plot_risk_distribution(self):
         """
         Plot the distribution of risk levels among customers.
-        
+    
         Returns:
-            matplotlib.figure.Figure: The distribution plot object.
+        matplotlib.figure.Figure: The distribution plot object.
         """
         plt.figure(figsize=(10, 6))
-        
+    
         # Count the number of customers in each risk level
         risk_counts = self.data['risk_level'].value_counts().sort_index()
-        
-        # Plot the bar chart
-        ax = sns.barplot(x=risk_counts.index, y=risk_counts.values, palette='viridis')
-        
+    
+        # Plot the bar chart with updated parameters to avoid deprecation warning
+        ax = sns.barplot(x=risk_counts.index, y=risk_counts.values, 
+                    hue=risk_counts.index, palette='viridis', legend=False)
+    
         # Add value labels on top of each bar
         for p in ax.patches:
             ax.annotate(f'{p.get_height()}', 
-                        (p.get_x() + p.get_width() / 2., p.get_height()),
-                        ha='center', va='center', 
-                        xytext=(0, 10), 
-                        textcoords='offset points')
-        
+                   (p.get_x() + p.get_width() / 2., p.get_height()),
+                   ha='center', va='center', 
+                   xytext=(0, 10), 
+                   textcoords='offset points')
+    
         plt.title('Distribution of Risk Levels', fontsize=16)
         plt.xlabel('Risk Level', fontsize=12)
         plt.ylabel('Number of Customers', fontsize=12)
         plt.xticks(rotation=45)
         plt.tight_layout()
-        
+    
         # Save the plot
         plt.savefig('image/risk_distribution.png', dpi=300, bbox_inches='tight')
         plt.close()
-        
+    
         print("Risk level distribution plot saved to image/risk_distribution.png")
-        
+    
         return ax
     
     def visualize_all(self):
@@ -97,6 +98,6 @@ class DataVisualizer:
         self.plot_risk_distribution()
         print("All visualizations have been generated and saved to the 'image' folder.")
 
-# Example usage
-visualizer = DataVisualizer('data/risk_report.csv')
-visualizer.visualize_all()
+# # Example usage
+# visualizer = DataVisualizer('data/risk_report.csv')
+# visualizer.visualize_all()

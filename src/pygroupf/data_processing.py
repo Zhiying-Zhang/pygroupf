@@ -161,42 +161,42 @@ class DataProcessor:
         return self.data      
     
 
-# Define column types
-categorical_cols = [
-    "Sex",
-    "Housing",
-    "Saving accounts",
-    "Checking account",
-    "Purpose",
-]
-numerical_cols = ["Age", "Job", "Credit amount", "Duration"]
+# # Define column types
+# categorical_cols = [
+#     "Sex",
+#     "Housing",
+#     "Saving accounts",
+#     "Checking account",
+#     "Purpose",
+# ]
+# numerical_cols = ["Age", "Job", "Credit amount", "Duration"]
 
-"""
-Encode specific categorical columns with numerical values as per requirements:
-- sex: male=1, female=0
-- housing: own=2, free=1, rent=0
-- saving_accounts: unknown=0, little=1, moderate=2, quite rich=3, rich=4
-- checking_account: unknown=0, little=1, moderate=2, rich=3
-"""
+# """
+# Encode specific categorical columns with numerical values as per requirements:
+# - sex: male=1, female=0
+# - housing: own=2, free=1, rent=0
+# - saving_accounts: unknown=0, little=1, moderate=2, quite rich=3, rich=4
+# - checking_account: unknown=0, little=1, moderate=2, rich=3
+# """
 
-# Define mapping of categorical values to numerical values
-mapping = {
-    "Sex": {"male": 1, "female": 0, "unknown": -1},
-    "Housing": {"own": 2, "free": 1, "rent": 0, "unknown": -1},
-    "Saving accounts": {
-        "unknown": 0,
-        "little": 1,
-        "moderate": 2,
-        "quite rich": 3,
-        "rich": 4,
-    },
-    "Checking account": {"unknown": 0, "little": 1, "moderate": 2, "rich": 3},
-}
+# # Define mapping of categorical values to numerical values
+# mapping = {
+#     "Sex": {"male": 1, "female": 0, "unknown": -1},
+#     "Housing": {"own": 2, "free": 1, "rent": 0, "unknown": -1},
+#     "Saving accounts": {
+#         "unknown": 0,
+#         "little": 1,
+#         "moderate": 2,
+#         "quite rich": 3,
+#         "rich": 4,
+#     },
+#     "Checking account": {"unknown": 0, "little": 1, "moderate": 2, "rich": 3},
+# }
 
 
-# data processing
-processor = DataProcessor("data/german_credit_data.csv")
-processor.load_data()
-processor.clean_data(categorical_cols, numerical_cols)
-encode_data = processor.encode_categorical_values(mapping)
-processed_data = processor.get_processed_data()
+# # data processing
+# processor = DataProcessor("data/german_credit_data.csv")
+# processor.load_data()
+# processor.clean_data(categorical_cols, numerical_cols)
+# encode_data = processor.encode_categorical_values(mapping)
+# processed_data = processor.get_processed_data()
