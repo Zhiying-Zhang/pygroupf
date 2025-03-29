@@ -41,7 +41,7 @@ def clean_data(data, categorical_cols, numerical_cols):
     Returns:
         pd.DataFrame: The cleaned DataFrame with no missing values.
     """
-   
+
     # Convert user-provided column names to internal format
     categorical_cols = [col.lower().replace(" ", "_") for col in categorical_cols]
     numerical_cols = [col.lower().replace(" ", "_") for col in numerical_cols]
@@ -59,9 +59,12 @@ def clean_data(data, categorical_cols, numerical_cols):
             median_val = data[col].median()
             data[col] = data[col].fillna(median_val)
             assert data[col].isna().sum() == 0, f"{col} still contains NA values"
-            assert pd.api.types.is_numeric_dtype(data[col]), f"{col} is not numeric after conversion"
-    
+            assert pd.api.types.is_numeric_dtype(
+                data[col]
+            ), f"{col} is not numeric after conversion"
+
     return data
+
 
 class DataEncoder:
     """
@@ -102,7 +105,7 @@ class DataEncoder:
         for col, value_map in internal_mapping.items():
             if col in data.columns:
                 data[col] = data[col].map(value_map)
-        
+
         return data
 
 
@@ -126,5 +129,5 @@ def save_processed_data(data, output_dir="data", filename="processed_credit_data
     output_path = os.path.join(output_dir, filename)
     data.to_csv(output_path, index=False)
     print(f"Data processing completed successfully! File saved to {output_path}")
-    
+
     return output_path

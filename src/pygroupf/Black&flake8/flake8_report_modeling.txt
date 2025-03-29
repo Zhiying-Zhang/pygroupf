@@ -1,0 +1,7 @@
+modeling.py:6:80: E501 line too long (80 > 79 characters)
+modeling.py:7:80: E501 line too long (85 > 79 characters)
+modeling.py:17:80: E501 line too long (81 > 79 characters)
+modeling.py:34:80: E501 line too long (86 > 79 characters)
+modeling.py:35:80: E501 line too long (86 > 79 characters)
+modeling.py:63:80: E501 line too long (87 > 79 characters)
+modeling.py:92:80: E501 line too long (85 > 79 characters)
